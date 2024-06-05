@@ -138,7 +138,7 @@ const SearchItemsView: React.FC = () => {
     <Form
       actions={
         <ActionPanel>
-          <Action.SubmitForm title="打TAG并发 Pipline" onSubmit={submit} />
+          <Action.SubmitForm title="Create Tag And Run Pipeline" onSubmit={submit} />
           {projectId && <Action.OpenInBrowser url={webURL} />}
         </ActionPanel>
       }
