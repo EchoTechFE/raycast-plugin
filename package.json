@@ -1,0 +1,72 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "echo-gitlab",
+  "title": "echo-gitlab",
+  "description": "Makes gitlab great again",
+  "icon": "gitlab.png",
+  "author": "GideonSenku",
+  "license": "MIT",
+  "commands": [
+    {
+      "name": "echo-gitlab",
+      "title": "echo-gitlab",
+      "description": "Makes gitlab great again",
+      "mode": "view"
+    }
+  ],
+  "preferences": [
+    {
+      "name": "instance",
+      "type": "textfield",
+      "required": true,
+      "title": "GitLab URL",
+      "description": "URL of your GitLab instance",
+      "placeholder": "URL of your GitLab instance e.g. https://gitlab.com"
+    },
+    {
+      "name": "token",
+      "type": "password",
+      "required": true,
+      "title": "API Token",
+      "description": "Your GitLab API token. `api` scope for read and write operations, `read_api` when you just want to read only commands.",
+      "link": "https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html",
+      "placeholder": "Enter your GitLab API token."
+    },
+    {
+      "name": "cookie",
+      "type": "textfield",
+      "required": true,
+      "title": "GitLab Cookie",
+      "description": "Cookie of your GitLab",
+      "placeholder": "Enter your GitLab Cookie."
+    },
+    {
+      "name": "csrfToken",
+      "type": "textfield",
+      "required": true,
+      "title": "GitLab csrfToken",
+      "description": "csrfToken of your GitLab",
+      "placeholder": "Enter your GitLab API csrfToken."
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.73.3",
+    "@tanstack/react-query": "^5.36.2",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^1.0.8",
+    "@types/node": "^20.12.12",
+    "@types/react": "^18.3.2",
+    "eslint": "^7.32.0",
+    "prettier": "^2.5.1",
+    "typescript": "^5.4.5"
+  },
+  "scripts": {
+    "build": "ray build -e dist",
+    "dev": "ray develop",
+    "fix-lint": "ray lint --fix",
+    "lint": "ray lint",
+    "publish": "npx @raycast/api@latest publish"
+  }
+}
