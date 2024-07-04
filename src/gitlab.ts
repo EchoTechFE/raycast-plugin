@@ -379,6 +379,14 @@ export class GitLab {
     })
     return resp
   }
+
+  async getProjectCommits(projectId: string, refName: string): Promise<any> {
+    const commits = await this.fetch(
+      `projects/${projectId}/repository/commits`,
+      { ref_name: refName }
+    )
+    return commits
+  }
 }
 
 export function createGitLabClient(): GitLab {

@@ -21,11 +21,13 @@ function compareVersions(a: string, b: string) {
 }
 
 const SearchItemsView: React.FC = () => {
+  const [commit, setCommit] = useState('')
   const [projectId, setProjectId] = useState('')
   const [projectName, setProjectName] = useState('')
   const [webURL, setWebURL] = useState('')
   const [version, setVersion] = useState('PATCH')
   const [nextTag, setNextTag] = useState('')
+  const [isPublishPipe, setIsPublishPipe] = useState(true)
 
   // Query to get the latest project from recent events
   const { data: latestProject, isFetching: isFetchingLatestProject } = useQuery(
@@ -50,6 +52,29 @@ const SearchItemsView: React.FC = () => {
       setProjectId('' + latestProject.id)
     }
   }, [latestProject])
+
+  // Query latest project commits
+  const { data: commits, isFetching: isFetchingCommits } = useQuery({
+    queryKey: ['commits', projectId],
+    queryFn: async () => {
+      const commits = await gitlab.getProjectCommits(projectId, 'master')
+      return commits || []
+    },
+    enabled: !!projectId,
+    staleTime: 1000 * 60,
+  })
+
+  useEffect(() => {
+    if (commits?.length) {
+      setCommit(commits[0].title)
+    }
+  }, [commits])
+
+  // useEffect(() => {
+  //   if (commits.length) {
+  //     // setCommit(commits[0].title)
+  //   }
+  // }, [commits])
 
   // Query to get the project list
   const { data: projects, isFetching: isFetchingProjects } = useQuery({
@@ -127,25 +152,37 @@ const SearchItemsView: React.FC = () => {
     )
     // 创建 TAG 并发布 pipeline
     await gitlab.createNewTag(projectId, nextTag)
-    const url = await gitlab.triggerPipeline(project?.fullPath || '', nextTag)
+    // 等待 2s
+    await new Promise((resolve) => setTimeout(resolve, 2000))
     await showToast({ title: '发布成功' })
-    if (url) {
-      open(url)
+    if (isPublishPipe) {
+      const url = await gitlab.triggerPipeline(project?.fullPath || '', nextTag)
+      if (url) {
+        open(url)
+      }
     }
   }
+
+  const isLoading =
+    isFetchingLatestProject ||
+    isFetchingProjects ||
+    isFetchingTags ||
+    isFetchingCommits
 
   return (
     <Form
       actions={
         <ActionPanel>
-          <Action.SubmitForm title="Create Tag And Run Pipeline" onSubmit={submit} />
+          <Action.SubmitForm
+            title="Create Tag And Run Pipeline"
+            onSubmit={submit}
+          />
           {projectId && <Action.OpenInBrowser url={webURL} />}
         </ActionPanel>
       }
-      isLoading={
-        isFetchingLatestProject || isFetchingProjects || isFetchingTags
-      }
+      isLoading={isLoading}
     >
+      <Form.Description title="commit" text={commit ?? ''} />
       <Form.Dropdown
         id="Project"
         title="项目名称"
@@ -176,6 +213,12 @@ const SearchItemsView: React.FC = () => {
         <Form.Dropdown.Item value="MAJOR" title="主版本号(MAJOR)" />
       </Form.Dropdown>
       <Form.Description title="发布版本" text={nextTag} />
+      <Form.Checkbox
+        id="publishPipe"
+        label="默认发布 Pipeline"
+        value={isPublishPipe}
+        onChange={setIsPublishPipe}
+      ></Form.Checkbox>
     </Form>
   )
 }
